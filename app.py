@@ -130,7 +130,7 @@ def auto_map_columns(df: pd.DataFrame) -> Dict[str, Optional[str]]:
 def to_numeric(series: pd.Series) -> pd.Series:
     # Coerce to numeric, handling common BR/US decimal formats robustly
     if series.dtype.kind in {"i", "u", "f"}:
-        return series.fillna(0)
+        return series.fillna(0).abs()
     def norm(x):
         if x is None:
             return None
@@ -151,7 +151,8 @@ def to_numeric(series: pd.Series) -> pd.Series:
         # digits only
         return s
     s = series.map(norm)
-    return pd.to_numeric(s, errors="coerce").fillna(0.0)
+    # Remove negative sign after coercion because these fields are counted values
+    return pd.to_numeric(s, errors="coerce").fillna(0.0).abs()
 
 
 def build_output_df(df: pd.DataFrame, mapping: Dict[str, Optional[str]]) -> pd.DataFrame:
