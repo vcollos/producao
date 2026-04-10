@@ -283,7 +283,14 @@ def clean_rows_by_patterns(df: pd.DataFrame) -> pd.DataFrame:
     # Join row text for pattern checks (first 12 columns are enough)
     first_col = temp.iloc[:, 0].astype(str)
     first_norm = first_col.map(remove_accents).str.lower().str.strip()
-    joined = temp.iloc[:, :12].astype(str).agg(" ".join, axis=1)
+    joined = temp.iloc[:, :12].apply(
+        lambda row: " ".join(
+            str(value).strip()
+            for value in row
+            if pd.notna(value) and str(value).strip()
+        ),
+        axis=1,
+    )
     norm = joined.map(remove_accents).str.lower().str.strip()
     # Patterns seen in page headers/footers
     patterns = [
